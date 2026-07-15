@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>С Днём Рождения!</title>
+    <!-- Подключаем пиксельный шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* ==================== ГЛОБАЛЬНЫЕ СТИЛИ ==================== */
+        :root {
+            --bg-dark: #0f0f1b; /* Глубокий фиолетово-черный */
+            --primary: #ff007f; /* Неоновый розовый */
+            --accent: #b026ff; /* Фиолетовый */
+            --white: #f8f8f8; /* Пиксельный белый */
+            --border-thick: 4px solid var(--white);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Утилита для блокировки скролла */
+        .no-scroll {
+            overflow: hidden;
+        }
+
+        /* ==================== ЭКРАН 1: ЗАГРУЗКА ==================== */
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 1s ease;
+        }
+
+        .pixel-heart {
+            font-size: 60px;
+            color: var(--primary);
+            text-shadow: 4px 4px 0 #55002a;
+            animation: heartbeat 1s infinite;
+            margin-bottom: 40px;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .start-btn {
+            background-color: var(--bg-dark);
+            color: var(--white);
+            border: var(--border-thick);
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 var(--primary);
+            transition: all 0.1s ease-in-out;
+            text-transform: uppercase;
+        }
+
+        .start-btn:hover {
+            background-color: var(--primary);
+            box-shadow: 6px 6px 0 var(--white);
+        }
+
+        .start-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0 var(--white);
+        }
+
+        .start-hint {
+            margin-bottom: 20px;
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        /* ==================== ЭКРАН 2: ГЛАВНАЯ СЦЕНА ==================== */
+        #main-app {
+            display: none; /* Скрыто до клика на START */
+            position: relative;
+            min-height: 100vh;
+            padding: 40px 20px;
+            z-index: 10;
+        }
+
+        /* Пиксельный звездный фон (CSS-арт) */
+        .starfield {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background:
+                radial-gradient(2px 2px at 40px 60px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 20px 50px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 30% 20%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 70% 80%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 80% 30%, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 10% 90%, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: spaceMove 100s linear infinite;
+        }
+
+        @keyframes spaceMove {
+            from { background-position: 0 0; }
+            to { background-position: -10000px 5000px; }
+        }
+
+        /* Эффект частиц (падающие сердечки/звездочки) */
+        .particle {
+            position: fixed;
+            top: -50px;
+            color: var(--primary);
+            font-size: 14px;
+            user-select: none;
+            pointer-events: none;
+            z-index: 0;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* Заголовок Typewriter */
+        .header-container {
+            text-align: center;
+            margin-bottom: 60px;
+            min-height: 80px; /* Чтобы не прыгал контент во время печати */
+        }
+
+        .typewriter-text {
+            font-size: 22px;
+            line-height: 1.5;
+            color: var(--primary);
+            text-shadow: 2px 2px 0 var(--white);
+            display: inline-block;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            height: 22px;
+            background-color: var(--white);
+            animation: blink 1s step-end infinite;
+            vertical-align: bottom;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ==================== ЭКРАН 3: ВОСПОМИНАНИЯ (КАРТОЧКИ) ==================== */
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto 80px auto;
+        }
+
+        .card {
+            background-color: #1c1c33;
+            border: var(--border-thick);
+            padding: 30px 20px;
+            width: 280px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 8px 8px 0 var(--accent);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background-color: #252544;
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* Модальные окна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--bg-dark);
+            border: var(--border-thick);
+            box-shadow: 10px 10px 0 var(--primary);
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            text-align: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: var(--primary);
+            color: var(--white);
+            border: 2px solid var(--white);
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 250px;
+            background-color: #000;
+            border: 2px dashed #666;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 10px;
+            overflow: hidden;
+        }
+
+        /* Когда добавишь фото, оно будет перекрывать заглушку */
+        .photo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none; /* Удали эту строку или измени на block, когда вставишь src */
+        }
+
+        .modal-text-title {
+            font-size: 14px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .modal-text-desc {
+            font-size: 10px;
+            line-height: 1.8;
+        }
+
+        /* ==================== ЭКРАН 4: МИНИ-ИГРА ==================== */
+        .minigame-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            background-color: rgba(28, 28, 51, 0.8);
+            border: 4px dashed var(--primary);
+            padding: 40px 20px;
+        }
+
+        .love-status {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 30px;
+            border: var(--border-thick);
+            background-color: #000;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary);
+            transition: width 0.2s ease;
+        }
+
+        .secret-msg {
+            display: none;
+            margin-top: 30px;
+            font-size: 14px;
+            line-height: 2;
+            color: var(--primary);
+            text-shadow: 1px 1px 0 var(--white);
+            animation: fadeIn 1.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ==================== АДАПТИВНОСТЬ ==================== */
+        @media (max-width: 600px) {
+            .typewriter-text { font-size: 16px; }
+            .card { width: 100%; }
+            .pixel-heart { font-size: 40px; }
+            .photo-placeholder { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Аудиоплеер (вставь URL на вашу музыку в src) -->
+    <!-- Например: src="https://example.com/your-song.mp3" -->
+    <audio id="bg-music" loop>
+        <source src="" type="audio/mpeg">
+    </audio>
+
+    <!-- 1. СТАРТОВЫЙ ЭКРАН -->
+    <div id="start-screen">
+        <div class="pixel-heart">♥</div>
+        <div class="start-hint">НАЖМИТЕ START, ЧТОБЫ НАЧАТЬ ИГРУ...</div>
+        <button class="start-btn" onclick="initApp()">START</button>
+    </div>
+
+    <!-- 2. ГЛАВНЫЙ ЭКРАН -->
+    <div id="main-app">
+        <div class="starfield"></div>
+
+        <!-- Заголовок -->
+        <div class="header-container">
+            <div class="typewriter-text" id="typewriter"></div><div class="cursor" id="cursor"></div>
+        </div>
+
+        <!-- 3. БЛОК ВОСПОМИНАНИЙ -->
+        <div class="cards-grid">
+            <div class="card" onclick="openModal('modal-1')">
+                <div class="card-icon">🎁</div>
+                <div class="card-title">День, когда мы встретились</div>
+            </div>
+            <div class="card" onclick="openModal('modal-2')">
+                <div class="card-icon">⭐</div>
+                <div class="card-title">Мое любимое воспоминание</div>
+            </div>
+            <div class="card" onclick="openModal('modal-3')">
+                <div class="card-icon">💖</div>
+                <div class="card-title">Почему я люблю тебя</div>
+            </div>
+        </div>
+
+        <!-- 4. МИНИ-ИГРА -->
+        <div class="minigame-container">
+            <div class="love-status">УРОВЕНЬ ЛЮБВИ: <span id="love-percent">0</span>%</div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="love-bar"></div>
+            </div>
+            <button class="start-btn" id="clicker-btn" onclick="increaseLove(event)">НАЖМИ НА МЕНЯ!</button>
+
+            <div class="secret-msg" id="final-secret">
+                ПОЗДРАВЛЯЮ! УРОВЕНЬ ЛЮБВИ ДОСТИГ МАКСИМУМА!<br><br>
+                [Впиши сюда свое самое главное пожелание. Скажи ей, как сильно ты её любишь, какая она невероятная и как ты счастлив быть с ней!]<br><br>
+                С ДНЁМ РОЖДЕНИЯ! ♥
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНЫЕ ОКНА (Попапы) -->
+
+    <!-- Карточка 1 -->
+    <div class="modal-overlay" id="modal-1" onclick="closeOnBackgroundClick(event, 'modal-1')">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('modal-1')">X</button>
+            <div class="photo-placeholder">
+                <img src="photo1.jpg" alt="Фото 1">
+                photo1.jpg
+            </div>
+            <div class="modal-text-title">День, когда мы встретились...</div>
+            <div class="modal-text-desc">
+                [Напиши здесь короткую историю вашего знакомства. Что ты подумал, когда впервые увидел её?]
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточка 2 -->
+    <div class="modal-overlay" id="modal-2" onclick="closeOnBackgroundClick(event, 'modal-2')">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('modal-2')">X</button>
+            <div class="photo-placeholder">
+                <img src="photo2.jpg" alt="Фото 2">
+                photo2.jpg
+            </div>
+            <div class="modal-text-title">Мое любимое воспоминание...</div>
+            <div class="modal-text-desc">
+                [Вспомни самый веселый, теплый или забавный момент, который вы пережили вместе.]
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточка 3 -->
+    <div class="modal-overlay" id="modal-3" onclick="closeOnBackgroundClick(event, 'modal-3')">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('modal-3')">X</button>
+            <div class="photo-placeholder">
+                <img src="photo3.jpg" alt="Фото 3">
+                photo3.jpg
+            </div>
+            <div class="modal-text-title">Почему я люблю тебя...</div>
+            <div class="modal-text-desc">
+                [Расскажи о её качествах. За её смех? За её поддержку? Перечисли, что делает её особенной для тебя.]
+            </div>
+        </div>
+    </div>
+
+    <!-- СКРИПТЫ -->
+    <script>
+        // ================= НАСТРОЙКИ ================= //
+        const girlfriendName = "[ИМЯ ДЕВУШКИ]"; // Впиши её имя сюда
+        const titleText = `С Днём Рождения, ${girlfriendName}! 🎂`;
+
+        let loveScore = 0;
+        const clickPower = 10; // Сколько % дает 1 клик. Сейчас нужно 10 кликов.
+
+        // ================= ИНИЦИАЛИЗАЦИЯ ИГРЫ ================= //
+        function initApp() {
+            // Прячем экран загрузки
+            const startScreen = document.getElementById('start-screen');
+            startScreen.style.opacity = '0';
+
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+
+                // Включаем музыку, если ссылка указана
+                const audio = document.getElementById('bg-music');
+                if (audio.querySelector('source').src && !audio.querySelector('source').src.endsWith('index.html')) {
+                    audio.volume = 0.5;
+                    audio.play().catch(e => console.log('Автоплей заблокирован браузером.'));
+                }
+
+                // Запускаем печатную машинку и падающие частицы
+                typeWriterEffect();
+                startFallingParticles();
+            }, 1000);
+        }
+
+        // ================= ЭФФЕКТ ТЕКСТА (Typewriter) ================= //
+        let charIndex = 0;
+        function typeWriterEffect() {
+            if (charIndex < titleText.length) {
+                document.getElementById("typewriter").innerHTML += titleText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriterEffect, 120); // Скорость печати (120 мс)
+            } else {
+                // После окончания скрываем курсор
+                document.getElementById("cursor").style.display = 'none';
+            }
+        }
+
+        // ================= ПАДАЮЩИЕ ЧАСТИЦЫ (СЕРДЕЧКИ/ЗВЕЗДОЧКИ) ================= //
+        function startFallingParticles() {
+            setInterval(() => {
+                createParticle();
+            }, 800); // Создавать частицу каждые 0.8 секунд
+        }
+
+        function createParticle(x = null, y = null) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+
+            // 50% шанс сердечко или звездочка
+            const isHeart = Math.random() > 0.5;
+            particle.innerHTML = isHeart ? '♥' : '★';
+            particle.style.color = isHeart ? 'var(--primary)' : 'var(--white)';
+
+            // Если координаты не переданы (фоновые частицы), спавним их вверху случайным образом
+            particle.style.left = (x !== null ? x : Math.random() * window.innerWidth) + 'px';
+            particle.style.top = (y !== null ? y : -50) + 'px';
+
+            // Случайный размер и скорость
+            const size = Math.floor(Math.random() * 15 + 10);
+            particle.style.fontSize = size + 'px';
+            particle.style.animationDuration = (Math.random() * 4 + 4) + 's'; // От 4 до 8 секунд
+
+            document.body.appendChild(particle);
+
+            // Удаляем элемент после завершения анимации
+            setTimeout(() => {
+                particle.remove();
+            }, 8000);
+        }
+
+        // ================= МИНИ-ИГРА (СЧЕТЧИК ЛЮБВИ) ================= //
+        function increaseLove(event) {
+            if (loveScore >= 100) return;
+
+            loveScore += clickPower;
+            if (loveScore > 100) loveScore = 100;
+
+            // Обновляем шкалу
+            document.getElementById('love-percent').innerText = loveScore;
+            document.getElementById('love-bar').style.width = loveScore + '%';
+
+            // Эффект взрыва сердечек при клике
+            for(let i = 0; i < 6; i++) {
+                const offsetX = event.clientX + (Math.random() * 80 - 40);
+                const offsetY = event.clientY + (Math.random() * 80 - 40);
+                createParticle(offsetX, offsetY);
+            }
+
+            // Если победа!
+            if (loveScore === 100) {
+                const btn = document.getElementById('clicker-btn');
+                btn.style.display = 'none'; // Убираем кнопку
+
+                setTimeout(() => {
+                    document.getElementById('final-secret').style.display = 'block';
+
+                    // Устраиваем дождь из сердечек
+                    let rainCount = 0;
+                    const rainInterval = setInterval(() => {
+                        createParticle();
+                        rainCount++;
+                        if (rainCount > 50) clearInterval(rainInterval);
+                    }, 100);
+
+                }, 500);
+            }
+        }
+
+        // ================= МОДАЛЬНЫЕ ОКНА (ПОПАПЫ) ================= //
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            document.body.classList.add('no-scroll');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+            document.body.classList.remove('no-scroll');
+        }
+
+        function closeOnBackgroundClick(event, id) {
+            if (event.target.id === id) {
+                closeModal(id);
+            }
+        }
+    </script>
+</body>
+</html>
